@@ -9,7 +9,7 @@ class StoreItemListTableViewController: UITableViewController {
     
     // add item controller property
     
-    var items = [String]()
+    var items = [StoreItem]()
     var imageLoadTasks: [IndexPath: Task<Void, Never>] = [:]
     
     let queryOptions = ["movie", "music", "software", "ebook"]
@@ -24,16 +24,27 @@ class StoreItemListTableViewController: UITableViewController {
         self.items = []
         self.tableView.reloadData()
         
+        let storeItemController = StoreItemController()
         let searchTerm = searchBar.text ?? ""
         let mediaType = queryOptions[filterSegmentedControl.selectedSegmentIndex]
         
         if !searchTerm.isEmpty {
             
             // set up query dictionary
-            
+            let query = ["term" : "eric+clapton", "media" : "music", "limit" : "10", "lang" : "en_us"]
             // use the item controller to fetch items
             // if successful, use the main queue to set self.items and reload the table view
             // otherwise, print an error to the console
+            Task {
+                do {
+                    let fetchedItems = try await storeItemController.fetchItems(matching: query)
+                    self.items = fetchedItems
+                    self.tableView.reloadData()
+                } catch {
+                    print("Error fetching data")
+                }
+            }
+            
         }
     }
     
@@ -42,11 +53,11 @@ class StoreItemListTableViewController: UITableViewController {
         let item = items[indexPath.row]
         
         // set cell.name to the item's name
-        
+        cell.name = item.name
         // set cell.artist to the item's artist
-        
+        cell.artist = item.artist
         // set cell.artworkImage to nil
-        
+        cell.artworkImage = nil
         // initialize a network task to fetch the item's artwork keeping track of the task
         // in imageLoadTasks so they can be cancelled if the cell will not be shown after
         // the task completes.
