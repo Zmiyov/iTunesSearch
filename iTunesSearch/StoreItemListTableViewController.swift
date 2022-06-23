@@ -63,6 +63,14 @@ class StoreItemListTableViewController: UITableViewController {
         // the task completes.
         //
         // if successful, set the cell.artworkImage using the returned image
+        Task {
+            do {
+                let image = try await StoreItemController().fetchImage(from: item.artworkURL)
+                cell.artworkImage = image
+            } catch {
+                print("Error fetching image")
+            }
+        }
     }
     
     @IBAction func filterOptionUpdated(_ sender: UISegmentedControl) {
