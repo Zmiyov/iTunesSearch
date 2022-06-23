@@ -31,7 +31,7 @@ class StoreItemListTableViewController: UITableViewController {
         if !searchTerm.isEmpty {
             
             // set up query dictionary
-            let query = ["term" : "eric+clapton", "media" : "music", "limit" : "10", "lang" : "en_us"]
+            let query = ["term" : searchTerm, "media" : mediaType, "limit" : "10", "lang" : "en_us"]
             // use the item controller to fetch items
             // if successful, use the main queue to set self.items and reload the table view
             // otherwise, print an error to the console
@@ -63,13 +63,14 @@ class StoreItemListTableViewController: UITableViewController {
         // the task completes.
         //
         // if successful, set the cell.artworkImage using the returned image
-        Task {
+        imageLoadTasks[indexPath] = Task {
             do {
                 let image = try await StoreItemController().fetchImage(from: item.artworkURL)
                 cell.artworkImage = image
             } catch {
                 print("Error fetching image")
             }
+            imageLoadTasks[indexPath] = nil
         }
     }
     
